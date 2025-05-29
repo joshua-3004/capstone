@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <!-- Using the styles provided in paste.txt -->
+</head>
+ <style>
+        /* Reset and Base Styles */
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+          --primary-color: #3498db;
+          --secondary-color: #2ecc71;
+          --accent-color: #9b59b6;
+          --dark-color: #2c3e50;
+          --light-color: #ecf0f1;
+          --text-color: #333;
+          --grey-color: #95a5a6;
+          --light-grey: #f5f5f5;
+          --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+          --transition: all 0.3s ease;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        body {
+          line-height: 1.6;
+          color: var(--text-color);
+          background-color: #f9f9f9;
+          min-height: 100vh;
+          display: flex;
+        }
+
+        a {
+          text-decoration: none;
+          color: var(--primary-color);
+          transition: var(--transition);
+        }
+
+        a:hover {
+          color: var(--secondary-color);
+        }
+
+        ul {
+          list-style: none;
+        }
+
+        .btn {
+          display: inline-block;
+          padding: 8px 16px;
+          font-size: 14px;
+          font-weight: 500;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: var(--transition);
+          border: none;
+          outline: none;
+        }
+
+        .primary-btn {
+          background-color: var(--primary-color);
+          color: white;
+        }
+
+        .primary-btn:hover {
+          background-color: #2980b9;
+          transform: translateY(-2px);
+          box-shadow: var(--shadow);
+        }
+
+        .secondary-btn {
+          background-color: var(--secondary-color);
+          color: white;
+        }
+
+        .secondary-btn:hover {
+          background-color: #27ae60;
+          transform: translateY(-2px);
+          box-shadow: var(--shadow);
+        }
+
+        .danger-btn {
+          background-color: #e74c3c;
+          color: white;
+        }
+
+        .danger-btn:hover {
+          background-color: #c0392b;
+          transform: translateY(-2px);
+          box-shadow: var(--shadow);
+        }
+
+        .warning-btn {
+          background-color: #f39c12;
+          color: white;
+        }
+
+        .warning-btn:hover {
+          background-color: #d35400;
+          transform: translateY(-2px);
+          box-shadow: var(--shadow);
+        }
+
+        .card {
+          background: white;
+          border-radius: 10px;
+          box-shadow: var(--shadow);
+          padding: 1.5rem;
+          margin-bottom: 1rem;
+          transition: var(--transition);
+        }
+
+        .card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+          padding-bottom: 1rem;
+          border-bottom: 1px solid var(--light-grey);
+        }
+
+        .card-title {
+          font-size: 1.2rem;
+          color: var(--dark-color);
+          font-weight: 600;
+        }
+
+        .section-title {
+          font-size: 1.5rem;
+          margin-bottom: 1.5rem;
+          color: var(--dark-color);
+          font-weight: 600;
+          position: relative;
+          padding-bottom: 10px;
+        }
+
+        .section-title::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 50px;
+          height: 3px;
+          background: var(--primary-color);
+          border-radius: 2px;
+        }
+
+        /* Dashboard Layout */
+        .sidebar {
+          width: 260px;
+          background-color: var(--dark-color);
+          color: white;
+          position: fixed;
+          height: 100vh;
+          overflow-y: auto;
+          transition: var(--transition);
+          z-index: 1000;
+        }
+
+        .main-content {
+          flex: 1;
+          margin-left: 260px;
+          padding: 1.5rem;
+          transition: var(--transition);
+        }
+
+        .sidebar-header {
+          padding: 1.5rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          display: flex;
+          align-items: center;
+        }
+
+        .sidebar-header img {
+          width: 40px;
+          margin-right: 10px;
+        }
+
+        .sidebar-header h3 {
+          font-size: 1.2rem;
+          font-weight: 600;
+        }
+
+        .sidebar-header span {
+          color: var(--primary-color);
+        }
+
+        .sidebar-menu {
+          padding: 1rem 0;
+        }
+
+        .menu-heading {
+          padding: 0.8rem 1.5rem;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          color: var(--grey-color);
+          letter-spacing: 1px;
+        }
+
+        .menu-item {
+          position: relative;
+        }
+
+        .menu-link {
+          padding: 0.8rem 1.5rem;
+          display: flex;
+          align-items: center;
+          color: #ddd;
+          transition: var(--transition);
+        }
+
+        .menu-link:hover, .menu-link.active {
+          background-color: rgba(255, 255, 255, 0.05);
+          color: var(--primary-color);
+          border-left: 3px solid var(--primary-color);
+        }
+
+        .menu-icon {
+          width: 20px;
+          margin-right: 10px;
+          font-size: 1.1rem;
+        }
+
+        .menu-text {
+          flex: 1;
+        }
+
+        .menu-arrow {
+          font-size: 0.8rem;
+        }
+
+        .submenu {
+          padding-left: 3rem;
+          max-height: 0;
+          overflow: hidden;
+          transition: var(--transition);
+        }
+
+        .menu-item.active .submenu {
+          max-height: 500px;
+        }
+
+        .menu-item.active .menu-arrow {
+          transform: rotate(90deg);
+        }
+
+        .submenu-link {
+          padding: 0.6rem 0;
+          display: block;
+          color: #ccc;
+          font-size: 0.9rem;
+          transition: var(--transition);
+        }
+
+        .submenu-link:hover {
+          color: var(--primary-color);
+        }
+
+        /* Top Navigation */
+        .topbar {
+          background-color: white;
+          padding: 1rem 1.5rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          border-radius: 10px;
+          margin-bottom: 1.5rem;
+        }
+
+        .toggle-sidebar {
+          font-size: 1.2rem;
+          cursor: pointer;
+          color: var(--dark-color);
+          display: none;
+        }
+
+        .search-bar {
+          display: flex;
+          align-items: center;
+          background-color: var(--light-grey);
+          border-radius: 30px;
+          padding: 0.5rem 1rem;
+          flex: 1;
+          max-width: 400px;
+          margin: 0 1rem;
+        }
+
+        .search-input {
+          background: transparent;
+          border: none;
+          outline: none;
+          padding: 0 0.5rem;
+          font-size: 0.9rem;
+          color: var(--text-color);
+          flex: 1;
+        }
+
+        .search-icon {
+          color: var(--grey-color);
+        }
+
+        .user-dropdown {
+          position: relative;
+          cursor: pointer;
+        }
+
+        .user-info {
+          display: flex;
+          align-items: center;
+        }
+
+        .user-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          overflow: hidden;
+          margin-right: 0.8rem;
+          background-color: var(--light-grey);
+        }
+
+        .user-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .user-name {
+          font-weight: 500;
+          font-size: 0.9rem;
+        }
+
+        .user-role {
+          font-size: 0.8rem;
+          color: var(--grey-color);
+        }
+
+        .dropdown-toggle {
+          margin-left: 0.5rem;
+          font-size: 0.8rem;
+        }
+
+        .notification-icon {
+          position: relative;
+          margin-right: 1.5rem;
+          font-size: 1.2rem;
+          color: var(--grey-color);
+          cursor: pointer;
+        }
+
+        .notification-badge {
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          width: 18px;
+          height: 18px;
+          background-color: var(--primary-color);
+          color: white;
+          font-size: 0.7rem;
+          border-radius: 50%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1.5rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+          display: flex;
+          align-items: center;
+          padding: 1.5rem;
+        }
+
+        .stat-icon {
+          width: 60px;
+          height: 60px;
+          border-radius: 10px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-right: 1rem;
+          font-size: 1.5rem;
+        }
+
+        .users-icon {
+          background-color: rgba(52, 152, 219, 0.1);
+          color: var(--primary-color);
+        }
+
+        .courses-icon {
+          background-color: rgba(46, 204, 113, 0.1);
+          color: var(--secondary-color);
+        }
+
+        .enrollments-icon {
+          background-color: rgba(155, 89, 182, 0.1);
+          color: var(--accent-color);
+        }
+
+        .revenue-icon {
+          background-color: rgba(241, 196, 15, 0.1);
+          color: #f1c40f;
+        }
+
+        .stat-content h4 {
+          font-size: 1.8rem;
+          font-weight: 600;
+          margin-bottom: 0.3rem;
+        }
+
+        .stat-content p {
+          font-size: 0.9rem;
+          color: var(--grey-color);
+        }
+
+        /* Table Styles */
+        .table-responsive {
+          overflow-x: auto;
+        }
+
+        .data-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .data-table th, .data-table td {
+          padding: 1rem;
+          text-align: left;
+          border-bottom: 1px solid var(--light-grey);
+          font-size: 0.9rem;
+        }
+
+        .data-table th {
+          font-weight: 600;
+          color: var(--dark-color);
+          background-color: var(--light-grey);
+        }
+
+        .data-table tr:last-child td {
+          border-bottom: none;
+        }
+
+        .data-table tr:hover {
+          background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .table-action {
+          display: flex;
+          gap: 0.5rem;
+        }
+
+        .action-icon {
+          width: 30px;
+          height: 30px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: var(--transition);
+        }
+
+        .view-icon {
+          background-color: rgba(52, 152, 219, 0.1);
+          color: var(--primary-color);
+        }
+
+        .edit-icon {
+          background-color: rgba(46, 204, 113, 0.1);
+          color: var(--secondary-color);
+        }
+
+        .delete-icon {
+          background-color: rgba(231, 76, 60, 0.1);
+          color: #e74c3c;
+        }
+
+        .action-icon:hover {
+          transform: translateY(-2px);
+        }
+
+        /* Two column layout */
+        .grid-columns-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.5rem;
+          margin-bottom: 1.5rem;
+        }
+
+        /* Charts */
+        .chart-container {
+          height: 300px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          position: relative;
+        }
+
+        .donut-chart {
+          width: 200px;
+          height: 200px;
+          border-radius: 50%;
+          background: conic-gradient(
+            var(--primary-color) 0% 25%, 
+            var(--secondary-color) 25% 55%, 
+            var(--accent-color) 55% 75%, 
+            #e74c3c 75% 100%
+          );
+          position: relative;
+        }
+
+        .donut-hole {
+          position: absolute;
+          width: 120px;
+          height: 120px;
+          background-color: white;
+          border-radius: 50%;
+          top: 40px;
+          left: 40px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-weight: 600;
+          color: var(--dark-color);
+        }
+
+        .chart-legend {
+          display: flex;
+          flex-direction: column;
+          gap: 0.8rem;
+          margin-top: 1rem;
+        }
+
+        .legend-item {
+          display: flex;
+          align-items: center;
+          font-size: 0.9rem;
+        }
+
+        .legend-color {
+          width: 15px;
+          height: 15px;
+          border-radius: 3px;
+          margin-right: 0.8rem;
+        }
+
+        .color-1 { background-color: var(--primary-color); }
+        .color-2 { background-color: var(--secondary-color); }
+        .color-3 { background-color: var(--accent-color); }
+        .color-4 { background-color: #e74c3c; }
+
+        /* Bar chart */
+        .bar-chart {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          height: 250px;
+          padding-top: 20px;
+        }
+
+        .bar {
+          width: 40px;
+          background-color: var(--primary-color);
+          border-radius: 5px 5px 0 0;
+          position: relative;
+          transition: var(--transition);
+        }
+
+        .bar:hover {
+          background-color: #2980b9;
+        }
+
+        .bar-label {
+          position: absolute;
+          bottom: -25px;
+          width: 100%;
+          text-align: center;
+          font-size: 0.8rem;
+          color: var(--text-color);
+        }
+
+        .bar-value {
+          position: absolute;
+          top: -25px;
+          width: 100%;
+          text-align: center;
+          font-size: 0.8rem;
+          font-weight: 500;
+          color: var(--dark-color);
+        }
+
+        /* Calendar */
+        .calendar {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 5px;
+        }
+
+        .calendar-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+        }
+
+        .calendar-nav {
+          display: flex;
+          gap: 0.5rem;
+        }
+
+        .calendar-nav-btn {
+          width: 30px;
+          height: 30px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background-color: var(--light-grey);
+          border-radius: 5px;
+          cursor: pointer;
+          transition: var(--transition);
+        }
+
+        .calendar-nav-btn:hover {
+          background-color: var(--primary-color);
+          color: white;
+        }
+
+        .weekday {
+          text-align: center;
+          font-weight: 600;
+          color: var(--dark-color);
+          padding: 0.5rem;
+          font-size: 0.8rem;
+        }
+
+        .calendar-day {
+          aspect-ratio: 1/1;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border-radius: 5px;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: var(--transition);
+        }
+
+        .calendar-day:hover {
+          background-color: var(--light-grey);
+        }
+
+        .other-month {
+          color: var(--grey-color);
+        }
+
+        .current-day {
+          background-color: var(--primary-color);
+          color: white;
+        }
+
+        .event-day {
+          position: relative;
+        }
+
+        .event-day::after {
+          content: '';
+          position: absolute;
+          bottom: 3px;
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background-color: var(--secondary-color);
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .activity-item {
+          display: flex;
+          margin-bottom: 1.5rem;
+          position: relative;
+        }
+
+        .activity-item:last-child {
+          margin-bottom: 0;
+        }
+
+        .activity-item::before {
+          content: '';
+          position: absolute;
+          left: 20px;
+          top: 30px;
+          bottom: -20px;
+          width: 2px;
+          background-color: var(--light-grey);
+          z-index: 1;
+        }
+
+        .activity-item:last-child::before {
+          display: none;
+        }
+
+        .activity-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background-color: var(--light-grey);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-right: 1rem;
+          color: var(--primary-color);
+          z-index: 2;
+        }
+
+        .activity-content {
+          flex: 1;
+        }
+
+        .activity-meta {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.8rem;
+          color: var(--grey-color);
+          margin-top: 0.3rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+          margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          font-size: 0.9rem;
+        }
+
+        .form-control {
+          width: 100%;
+          padding: 0.8rem 1rem;
+          border: 1px solid var(--light-grey);
+          border-radius: 5px;
+          font-size: 0.9rem;
+          transition: var(--transition);
+        }
+
+        .form-control:focus {
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+          outline: none;
+        }
+
+        .form-select {
+          appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%232c3e50' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 1rem center;
+          background-size: 16px 12px;
+        }
+
+        .form-buttons {
+          display: flex;
+          gap: 1rem;
+          justify-content: flex-end;
+          margin-top: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+          .dashboard-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (max-width: 992px) {
+          .sidebar {
+            width: 70px;
+            overflow: visible;
+          }
+
+          .main-content {
+            margin-left: 70px;
+          }
+
+          .sidebar-header {
+            padding: 1rem;
+            justify-content: center;
+          }
+
+          .sidebar-header img {
+            margin-right: 0;
+          }
+
+          .sidebar-header h3 {
+            display: none;
+          }
+
+          .menu-text, .menu-arrow {
+            display: none;
+          }
+
+          .menu-link {
+            justify-content: center;
+            padding: 1rem;
+          }
+
+          .menu-icon {
+            margin-right: 0;
+          }
+
+          .menu-heading {
+            text-align: center;
+            padding: 0.5rem;
+          }
+
+          .body-expanded .sidebar {
+            width: 260px;
+          }
+
+          .body-expanded .main-content {
+            margin-left: 260px;
+          }
+
+          .body-expanded .sidebar-header {
+            justify-content: flex-start;
+          }
+
+          .body-expanded .sidebar-header img {
+            margin-right: 10px;
+          }
+
+          .body-expanded .sidebar-header h3 {
+            display: block;
+          }
+
+          .body-expanded .menu-text, 
+          .body-expanded .menu-arrow {
+            display: block;
+          }
+
+          .body-expanded .menu-link {
+            justify-content: flex-start;
+            padding: 0.8rem 1.5rem;
+          }
+
+          .body-expanded .menu-icon {
+            margin-right: 10px;
+          }
+
+          .body-expanded .menu-heading {
+            text-align: left;
+            padding: 0.8rem 1.5rem;
+          }
+
+          .toggle-sidebar {
+            display: block;
+          }
+
+          .grid-columns-2 {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .dashboard-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .search-bar {
+            display: none;
+          }
+
+          .topbar {
+            padding: 0.8rem;
+          }
+
+          .user-info {
+            display: none;
+          }
+
+          .notification-icon {
+            margin-right: 1rem;
+          }
+        }
+
+        /* Utilities */
+        .badge {
+          display: inline-block;
+          padding: 0.25rem 0.5rem;
+          font-size: 0.75rem;
+          font-weight: 500;
+          border-radius: 30px;
+        }
+
+        .badge-success {
+          background-color: rgba(46, 204, 113, 0.1);
+          color: var(--secondary-color);
+        }
+
+        .badge-warning {
+          background-color: rgba(241, 196, 15, 0.1);
+          color: #f1c40f;
+        }
+
+        .badge-danger {
+          background-color: rgba(231, 76, 60, 0.1);
+          color: #e74c3c;
+        }
+
+        .badge-primary {
+          background-color: rgba(52, 152, 219, 0.1);
+          color: var(--primary-color);
+        }
+
+        .text-success { color: var(--secondary-color); }
+        .text-warning { color: #f39c12; }
+        .text-danger { color: #e74c3c; }
+        .text-primary { color: var(--primary-color); }
+
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+
+        /* Toggle Forms */
+        .tab-container {
+          margin-bottom: 1.5rem;
+        }
+
+        .tab-nav {
+          display: flex;
+          background-color: var(--light-grey);
+          border-radius: 5px;
+          overflow: hidden;
+          margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+          flex: 1;
+          padding: 0.8rem;
+          text-align: center;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          font-weight: 500;
+          color: var(--text-color);
+          transition: var(--transition);
+        }
+
+        .tab-btn.active {
+          background-color: var(--primary-color);
+          color: white;
+        }
+
+        .tab-content {
+          display: none;
+        }
+
+        .tab-content.active {
+          display: block;
+          animation: fadeIn 0.3s ease;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* Audit Logs Styling */
+        .log-item {
+          padding: 0.8rem;
+          border-radius: 5px;
+          margin-bottom: 0.5rem;
+          background-color: var(--light-grey);
+          font-size: 0.9rem;
+          transition: var(--transition);
+        }
+
+        .log-item:hover {
+          background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .log-meta {
+          display: flex;
+          justify-content: space-between;
+          color: var(--grey-color);
+          font-size: 0.8rem;
+          margin-top: 0.3rem;
+        }
+
+        .log-level {
+          font-weight: 500;
+        }
+
+        .log-level-info {
+          color: var(--primary-color);
+        }
+
+        .log-level-warning {
+          color: #f39c12;
+        }
+
+        .log-level-error {
+          color: #e74c3c;
+        }
+    </style>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <img src="/api/placeholder/40/40" alt="Logo">
+            <h3>Admin<span>Panel</span></h3>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-heading">Main</div>
+            <div class="menu-item active">
+                <a href="#" class="menu-link active">
+                    <i class="menu-icon fas fa-tachometer-alt"></i>
+                    <span class="menu-text">Dashboard</span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-user-graduate"></i>
+                    <span class="menu-text">Students</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <div class="submenu">
+                    <a href="#" class="submenu-link">All Students</a>
+                    <a href="#" class="submenu-link">Add Student</a>
+                    <a href="#" class="submenu-link">Student Profile</a>
+                </div>
+            </div>
+            <div class="menu-item">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-chalkboard-teacher"></i>
+                    <span class="menu-text">Teachers</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <div class="submenu">
+                    <a href="#" class="submenu-link">All Teachers</a>
+                    <a href="#" class="submenu-link">Add Teacher</a>
+                    <a href="#" class="submenu-link">Teacher Profile</a>
+                </div>
+            </div>
+            <div class="menu-item">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-book"></i>
+                    <span class="menu-text">Courses</span>
+                    <i class="menu-arrow fas fa-chevron-right"></i>
+                </a>
+                <div class="submenu">
+                    <a href="#" class="submenu-link">All Courses</a>
+                    <a href="#" class="submenu-link">Add Course</a>
+                    <a href="#" class="submenu-link">Course Details</a>
+                </div>
+            </div>
+            
+            <div class="menu-heading">Management</div>
+            <div class="menu-item">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-calendar-alt"></i>
+                    <span class="menu-text">Schedule</span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-chart-line"></i>
+                    <span class="menu-text">Reports</span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-cog"></i>
+                    <span class="menu-text">Settings</span>
+                </a>
+            </div>
+            
+            <div class="menu-heading">Account</div>
+            <div class="menu-item">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-user"></i>
+                    <span class="menu-text">Profile</span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <a href="#" class="menu-link">
+                    <i class="menu-icon fas fa-sign-out-alt"></i>
+                    <span class="menu-text">Logout</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navigation -->
+        <div class="topbar">
+            <div class="toggle-sidebar">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="search-bar">
+                <i class="search-icon fas fa-search"></i>
+                <input type="text" class="search-input" placeholder="Search...">
+            </div>
+            <div class="user-dropdown">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">5</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <img src="/api/placeholder/40/40" alt="User Avatar">
+                    </div>
+                    <div>
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role">Administrator</div>
+                    </div>
+                    <span class="dropdown-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Overview -->
+        <h2 class="section-title">Dashboard Overview</h2>
+        <div class="dashboard-grid">
+            <div class="card stat-card">
+                <div class="stat-icon users-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h4>3,254</h4>
+                    <p>Total Students</p>
+                </div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-icon courses-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="stat-content">
+                    <h4>126</h4>
+                    <p>Active Courses</p>
+                </div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-icon enrollments-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="stat-content">
+                    <h4>5,678</h4>
+                    <p>Total Enrollments</p>
+                </div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-icon revenue-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <h4>$124,500</h4>
+                    <p>Monthly Revenue</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="grid-columns-2">
+            <!-- Recent Student Enrollments -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Recent Student Enrollments</h3>
+                    <a href="#" class="btn primary-btn">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Emma Watson</td>
+                                <td>Advanced Web Development</td>
+                                <td>May 8, 2025</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>James Brown</td>
+                                <td>Data Science Fundamentals</td>
+                                <td>May 7, 2025</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>Maria Garcia</td>
+                                <td>UX/UI Design Principles</td>
+                                <td>May 6, 2025</td>
+                                <td><span class="badge badge-warning">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>Robert Chen</td>
+                                <td>Mobile App Development</td>
+                                <td>May 5, 2025</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>Sarah Johnson</td>
+                                <td>Business Analytics</td>
+                                <td>May 4, 2025</td>
+                                <td><span class="badge badge-danger">Expired</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Recent Activities</h3>
+                    <a href="#" class="btn secondary-btn">View All</a>
+                </div>
+                <div class="activity-feed">
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div>New student <strong>Alex Thompson</strong> registered for the platform</div>
+                            <div class="activity-meta">
+                                <span>2 hours ago</span>
+                                <span class="text-primary">Student Registration</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div><strong>Maria Garcia</strong> enrolled in <strong>UX/UI Design Principles</strong></div>
+                            <div class="activity-meta">
+                                <span>5 hours ago</span>
+                                <span class="text-success">Course Enrollment</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div><strong>James Brown</strong> rated <strong>Data Science Fundamentals</strong> with 5 stars</div>
+                            <div class="activity-meta">
+                                <span>Yesterday</span>
+                                <span class="text-warning">Course Rating</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div><strong>Robert Chen</strong> completed <strong>JavaScript Masterclass</strong></div>
+                            <div class="activity-meta">
+                                <span>2 days ago</span>
+                                <span class="text-primary">Course Completion</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Another Two Column Layout -->
+        <div class="grid-columns-2">
+            <!-- Charts Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Enrollment Distribution</h3>
+                </div>
+                <div class="chart-container">
+                    <div class="donut-chart">
+                        <div class="donut-hole">75%</div>
+                    </div>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color color-1"></div>
+                        <span>Web Development (25%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color color-2"></div>
+                        <span>Data Science (30%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color color-3"></div>
+                        <span>Design (20%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color color-4"></div>
+                        <span>Business (25%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">May 2025</h3>
+                    <div class="calendar-nav">
+                        <div class="calendar-nav-btn">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                        <div class="calendar-nav-btn">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="calendar">
+                    <div class="weekday">Sun</div>
+                    <div class="weekday">Mon</div>
+                    <div class="weekday">Tue</div>
+                    <div class="weekday">Wed</div>
+                    <div class="weekday">Thu</div>
+                    <div class="weekday">Fri</div>
+                    <div class="weekday">Sat</div>
+                    
+                    <div class="calendar-day other-month">28</div>
+                    <div class="calendar-day other-month">29</div>
+                    <div class="calendar-day other-month">30</div>
+                    <div class="calendar-day">1</div>
+                    <div class="calendar-day">2</div>
+                    <div class="calendar-day">3</div>
+                    <div class="calendar-day">4</div>
+                    
+                    <div class="calendar-day">5</div>
+                    <div class="calendar-day">6</div>
+                    <div class="calendar-day">7</div>
+                    <div class="calendar-day">8</div>
+                    <div class="calendar-day">9</div>
+                    <div class="calendar-day current-day">10</div>
+                    <div class="calendar-day">11</div>
+                    
+                    <div class="calendar-day">12</div>
+                    <div class="calendar-day event-day">13</div>
+                    <div class="calendar-day">14</div>
+                    <div class="calendar-day event-day">15</div>
+                    <div class="calendar-day">16</div>
+                    <div class="calendar-day">17</div>
+                    <div class="calendar-day">18</div>
+                    
+                    <div class="calendar-day">19</div>
+                    <div class="calendar-day event-day">20</div>
+                    <div class="calendar-day">21</div>
+                    <div class="calendar-day">22</div>
+                    <div class="calendar-day">23</div>
+                    <div class="calendar-day">24</div>
+                    <div class="calendar-day">25</div>
+                    
+                    <div class="calendar-day">26</div>
+                    <div class="calendar-day">27</div>
+                    <div class="calendar-day event-day">28</div>
+                    <div class="calendar-day">29</div>
+                    <div class="calendar-day">30</div>
+                    <div class="calendar-day">31</div>
+                    <div class="calendar-day other-month">1</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bar Chart Section -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">Monthly Revenue</h3>
+                <a href="#" class="btn secondary-btn">Download Report</a>
+            </div>
+            <div class="bar-chart">
+                <div class="bar" style="height: 60%;">
+                    <div class="bar-value">$82k</div>
+                    <div class="bar-label">Jan</div>
+                </div>
+                <div class="bar" style="height: 75%;">
+                    <div class="bar-value">$98k</div>
+                    <div class="bar-label">Feb</div>
+                </div>
+                <div class="bar" style="height: 65%;">
+                    <div class="bar-value">$85k</div>
+                    <div class="bar-label">Mar</div>
+                </div>
+                <div class="bar" style="height: 80%;">
+                    <div class="bar-value">$105k</div>
+                    <div class="bar-label">Apr</div>
+                </div>
+                <div class="bar" style="height: 95%;">
+                    <div class="bar-value">$124k</div>
+                    <div class="bar-label">May</div>
+                </div>
+                <div class="bar" style="height: 45%;">
+                    <div class="bar-value">$60k</div>
+                    <div class="bar-label">Jun</div>
+                </div>
+                <div class="bar" style="height: 55%;">
+                    <div class="bar-value">$72k</div>
+                    <div class="bar-label">Jul</div>
+                </div>
+                <div class="bar" style="height: 70%;">
+                    <div class="bar-value">$92k</div>
+                    <div class="bar-label">Aug</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Logs -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">System Logs</h3>
+                <a href="#" class="btn primary-btn">View All Logs</a>
+            </div>
+            <div class="audit-logs">
+                <div class="log-item">
+                    <div>Database backup completed successfully</div>
+                    <div class="log-meta">
+                        <span>May 10, 2025 - 05:30 AM</span>
+                        <span class="log-level log-level-info">INFO</span>
+                    </div>
+                </div>
+                <div class="log-item">
+                    <div>High server load detected (CPU: 85%)</div>
+                    <div class="log-meta">
+                        <span>May 9, 2025 - 02:15 PM</span>
+                        <span class="log-level log-level-warning">WARNING</span>
+                    </div>
+                </div>
+                <div class="log-item">
+                    <div>Failed login attempt from IP: 192.168.1.54</div>
+                    <div class="log-meta">
+                        <span>May 9, 2025 - 10:42 AM</span>
+                        <span class="log-level log-level-error">ERROR</span>
+                    </div>
+                </div>
+                <div class="log-item">
+                    <div>System updates installed successfully</div>
+                    <div class="log-meta">
+                        <span>May 8, 2025 - 11:30 PM</span>
+                        <span class="log-level log-level-info">INFO</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <script src="admindashboard.js"></script>
+</body>
+</html>

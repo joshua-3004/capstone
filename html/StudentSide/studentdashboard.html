@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar styles */
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            transition: width 0.3s ease;
+            overflow-x: hidden;
+        }
+        
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        
+        .sidebar-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .user-profile {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #34495e;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: #ecf0f1;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .avatar:hover::after {
+            content: "Change Photo";
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.7);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .sidebar.collapsed .avatar {
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            margin-left: 20px;  
+        }
+        
+        .user-info h3 {
+            margin: 10px 0 5px;
+            font-size: 18px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .sidebar.collapsed .user-info h3,
+        .sidebar.collapsed .user-role,
+        .sidebar.collapsed .menu-label,
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+        
+        .user-role {
+            font-size: 14px;
+            color: #95a5a6;
+            margin-bottom: 15px;
+        }
+        
+        .menu-label {
+            padding: 10px 20px;
+            font-size: 12px;
+            color: #95a5a6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        
+        .nav-menu::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .nav-menu::-webkit-scrollbar-thumb {
+            background: #34495e;
+            border-radius: 5px;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            background-color: #34495e;
+        }
+        
+        .nav-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar.collapsed .nav-item {
+            padding: 12px;
+            justify-content: center;
+        }
+        
+        .sidebar.collapsed .nav-item i {
+            margin-right: 0;
+        }
+        
+        .nav-item.active {
+            background-color: #3498db;
+        }
+        
+        .nav-item .badge {
+            position: absolute;
+            right: 15px;
+            background-color: #e74c3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        
+        .sidebar.collapsed .badge {
+            right: 5px;
+            top: 5px;
+        }
+        
+        .dropdown-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background-color: #34495e;
+            padding-left: 20px;
+        }
+        
+        .dropdown-menu.active {
+            max-height: 200px;
+        }
+        
+        .dropdown-menu .nav-item {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        
+        .has-dropdown > i.fas.fa-chevron-down {
+            position: absolute;
+            right: 15px;
+            transition: transform 0.3s;
+        }
+        
+        .has-dropdown.active > i.fas.fa-chevron-down {
+            transform: rotate(180deg);
+        }
+        
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 0 5px;
+        }
+        
+        .sidebar.collapsed .mode-toggle {
+            justify-content: center;
+        }
+        
+        .mode-toggle label {
+            font-size: 14px;
+        }
+        
+        .sidebar.collapsed .mode-toggle label {
+            display: none;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #3498db;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
+        .logout-btn {
+            margin-top: 10px;
+            padding: 12px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            text-align: left;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .logout-btn i {
+            margin-right: 10px;
+        }
+        
+        .sidebar.collapsed .logout-btn {
+            padding: 12px 0;
+            justify-content: center;
+        }
+        
+        .sidebar.collapsed .logout-btn i {
+            margin-right: 0;
+        }
+        
+        .sidebar.collapsed .logout-text {
+            display: none;
+        }
+        
+        /* Main content styles */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        
+        header {
+            background-color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        .welcome-message {
+            font-size: 24px;
+            font-weight: 500;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .notification-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #e74c3c;
+            color: white;
+            font-size: 12px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .search-container {
+            position: relative;
+            margin-right: 20px;
+        }
+        
+        .search-input {
+            padding: 8px 15px 8px 35px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            transition: all 0.3s;
+            width: 200px;
+        }
+        
+        .search-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+            width: 250px;
+        }
+        
+        .search-container i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .dashboard-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-options {
+            cursor: pointer;
+            padding: 5px;
+            color: #7f8c8d;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 20px;
+        }
+        
+        .card-content {
+            font-size: 15px;
+        }
+        
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #1a1a2e;
+            color: #f0f0f0;
+        }
+        
+        body.dark-mode .sidebar {
+            background-color: #16213e;
+        }
+        
+        body.dark-mode .sidebar .nav-item:hover {
+            background-color: #0f3460;
+        }
+        
+        body.dark-mode .sidebar .dropdown-menu {
+            background-color: #0f3460;
+        }
+        
+        body.dark-mode .dashboard-card,
+        body.dark-mode header {
+            background-color: #16213e;
+            color: #f0f0f0;
+        }
+        
+        body.dark-mode .search-input {
+            background-color: #1a1a2e;
+            border-color: #0f3460;
+            color: #f0f0f0;
+        }
+        
+        body.dark-mode .card-options {
+            color: #c0c0c0;
+        }
+        
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            
+            .sidebar.collapsed {
+                width: 100%;
+                height: 60px;
+                overflow: hidden;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .search-input {
+                width: 150px;
+            }
+            
+            .search-input:focus {
+                width: 180px;
+            }
+            
+            .welcome-message {
+                font-size: 20px;
+            }
+        }
+        
+        /* Content sections */
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        .content-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .content-section p {
+            color: #7f8c8d;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        body.dark-mode .content-section h2 {
+            color: #f0f0f0;
+        }
+        
+        body.dark-mode .content-section p {
+            color: #c0c0c0;
+        }
+
+       .profile-form-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            color: #2c3e50;
+        }
+
+        .profile-form-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-form-header i {
+            margin-right: 10px;
+            color: #3498db;
+        }
+
+        .profile-form-header h2 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #fff;
+            color: #2c3e50;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: #7f8c8d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #6c7b7d;
+        }
+
+        .required-field {
+            color: #e74c3c;
+        }
+
+        .profile-avatar-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .avatar-upload-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background-color: #ecf0f1;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .avatar-upload-btn i {
+            color: #3498db;
+            font-size: 14px;
+        }
+
+        #avatar-file-input {
+            display: none;
+        }
+
+        .form-notice {
+            color: #7f8c8d;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        /* Success message */
+        .success-message {
+            display: none;
+            background-color: #27ae60;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* Form sections */
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .form-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #3498db;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-section-title i {
+            margin-right: 8px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -5px;
+        }
+
+        .form-col {
+            flex: 1;
+            padding: 0 5px;
+            min-width: 100px;
+        }
+
+        @media (max-width: 768px) {
+            .form-col {
+                flex: 100%;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Password strength indicator */
+        .password-strength {
+            height: 5px;
+            margin-top: 8px;
+            border-radius: 2px;
+            background-color: #ddd;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        .weak {
+            background-color: #e74c3c;
+            width: 33%;
+        }
+
+        .medium {
+            background-color: #f39c12;
+            width: 66%;
+        }
+
+        .strong {
+            background-color: #27ae60;
+            width: 100%;
+        }
+
+        .password-status {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        /* Toggle password visibility */
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        .password-field-wrapper {
+            position: relative;
+        }
+        
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #1a1a2e;
+            color: #f0f0f0;
+        }
+        
+        body.dark-mode .sidebar {
+            background-color: #16213e;
+        }
+        
+        body.dark-mode .sidebar .nav-item:hover {
+            background-color: #0f3460;
+        }
+        
+        body.dark-mode .sidebar .dropdown-menu {
+            background-color: #0f3460;
+        }
+        
+        body.dark-mode .profile-form-container,
+        body.dark-mode header {
+            background-color: #16213e;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .profile-form-header h2 {
+            color: #f0f0f0;
+        }
+        
+        body.dark-mode .search-input,
+        body.dark-mode .form-control {
+            background-color: #1a1a2e;
+            border-color: #0f3460;
+            color: #f0f0f0;
+        }
+        
+        body.dark-mode .form-group label {
+            color: #c0c0c0;
+        }
+
+        body.dark-mode .form-notice,
+        body.dark-mode .password-status {
+            color: #c0c0c0;
+        }
+        
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            
+            .sidebar.collapsed {
+                width: 100%;
+                height: 60px;
+                overflow: hidden;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .search-input {
+                width: 150px;
+            }
+            
+            .search-input:focus {
+                width: 180px;
+            }
+            
+            .welcome-message {
+                font-size: 20px;
+            }
+        } 
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="user-profile">
+                <div class="avatar" id="avatarUpload">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <h3 id="userNameDisplay">John Doe</h3>
+                    <div class="user-role" id="userRoleDisplay">Student</div>
+                </div>
+            </div>
+            
+            <div class="menu-label">Navigation</div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-content="dashboard">
+                    <i class="fas fa-home"></i> <span class="nav-text">Dashboard</span>
+                </li>
+
+                <li class="nav-item has-dropdown" id="coursesDropdown">
+                    <i class="fas fa-book"></i> <span class="nav-text">Courses</span>
+                    <span class="badge">5</span>
+                    <i class="fas fa-chevron-down"></i>
+                    <ul class="dropdown-menu" id="coursesMenu">
+                        <li class="nav-item" data-content="mathematics"><i class="fas fa-circle"></i> <span class="nav-text">Mathematics</span></li>
+                        <li class="nav-item" data-content="science"><i class="fas fa-circle"></i> <span class="nav-text">Science</span></li>
+                        <li class="nav-item" data-content="history"><i class="fas fa-circle"></i> <span class="nav-text">History</span></li>
+                        <li class="nav-item" data-content="english"><i class="fas fa-circle"></i> <span class="nav-text">English</span></li>
+                        <li class="nav-item" data-content="cs"><i class="fas fa-circle"></i> <span class="nav-text">Computer Science</span></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item" data-content="assignments">
+                    <i class="fas fa-tasks"></i> <span class="nav-text">Assignments</span> <span class="badge">3</span>
+                </li>
+                <li class="nav-item" data-content="schedule">
+                    <i class="fas fa-calendar"></i> <span class="nav-text">Schedule</span>
+                </li>
+                <li class="nav-item" data-content="grades">
+                    <i class="fas fa-chart-bar"></i> <span class="nav-text">Grades</span>
+                </li>
+                <li class="nav-item" data-content="messages">
+                    <i class="fas fa-comments"></i> <span class="nav-text">Messages</span> <span class="badge">2</span>
+                </li>
+
+                <div class="menu-label">Account</div>
+                <li class="nav-item" data-content="profile">
+                    <i class="fas fa-user-circle"></i> <span class="nav-text">Profile</span>
+                </li>
+                <li class="nav-item" data-content="settings">
+                    <i class="fas fa-cog"></i> <span class="nav-text">Settings</span>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="mode-toggle">
+                    <label>Dark Mode</label>
+                    <label class="switch">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="logout-text">Logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <header>
+                <div class="welcome-message">Welcome Back</div>
+                <div class="header-actions">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="search-input" placeholder="Search...">
+                    </div>
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">3</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-section active" id="dashboard">
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <span style="margin-left: 15px;">Active Courses</span>
+                            </div>
+                            <div class="card-options">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <p>You have 5 active courses this semester. Stay on track with your studies!</p>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon" style="background-color: #e74c3c;">
+                                    <i class="fas fa-tasks"></i>
+                                </div>
+                                <span style="margin-left: 15px;">Pending Assignments</span>
+                            </div>
+                            <div class="card-options">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <p>3 assignments are due this week. Click to view details and submit your work.</p>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon" style="background-color: #27ae60;">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <span style="margin-left: 15px;">Academic Progress</span>
+                            </div>
+                            <div class="card-options">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <p>Your overall GPA is 3.8. Great job maintaining excellent academic performance!</p>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon" style="background-color: #f39c12;">
+                                    <i class="fas fa-calendar"></i>
+                                </div>
+                                <span style="margin-left: 15px;">Upcoming Events</span>
+                            </div>
+                            <div class="card-options">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <p>Check your schedule for upcoming classes, exams, and important academic events.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section" id="mathematics">
+                <h2>Mathematics</h2>
+                <div class="card-content">
+                    <p>Your mathematics course content, assignments, and progress will be displayed here. Access lecture notes, homework assignments, and track your performance in calculus and algebra topics.</p>
+                </div>
+            </div>
+
+            <div class="content-section" id="science">
+                <h2>Science</h2>
+                <div class="card-content">
+                    <p>Your science course materials and laboratory assignments are available in this section. Review experiments, study guides, and research projects.</p>
+                </div>
+            </div>
+
+            <div class="content-section" id="history">
+                <h2>History</h2>
+                <div class="card-content">
+                    <p>Explore historical events, timelines, and research assignments in your history course. Access primary sources and analytical essays.</p>
+                </div>
+            </div>
+
+            <div class="content-section" id="english">
+                <h2>English</h2>
+                <div class="card-content">
+                    <p>Literature analysis, writing assignments, and language exercises for your English course. Review reading lists and essay requirements.</p>
+                </div>
+            </div>
+
+            <div class="content-section" id="cs">
+                <h2>Computer Science</h2>
+                <div class="card-content">
+                    <p>Programming assignments, algorithms, and computer science theory materials. Access coding projects and technical documentation.</p>
+                </div>
+            </div>
+
+            <div class="content-section" id="assignments">
+                <h2>Assignments</h2>
+                <div class="card-content">
+                    <p>View all your pending assignments, due dates, and submission status across all courses. Track your progress and manage deadlines effectively.</p>
+                </div>
+            </div>
+
+            <div class="content-section" id="schedule">
+                <h2>Schedule</h2>
+                <div class="card-content">
+                    <p>Your class schedule, upcoming events, and important academic dates. Plan your time and stay organized with your academic calendar.</p>
+                </div>
+            </div>
+
+            <div class="content-section" id="grades">
+                <h2>Grades</h2>
+                <div class="card-content">
+                    <p>Track your academic performance, view grades, and monitor your progress throughout the semester. Access detailed grade breakdowns and analytics.</p>
+                </div>
+            </div>
+
+            <div class="content-section" id="messages">
+                <h2>Messages</h2>
+                <div class="card-content">
+                    <p>Communication center for messages from instructors, classmates, and administrative notifications. Stay connected with your academic community.</p>
+                </div>
+            </div>
+
+            <div class="content-section" id="profile">
+                <h2>Profile</h2>
+                <div class="profile-form-container">
+                <div class="profile-form-header">
+                    <i class="fas fa-user-circle fa-lg"></i>
+                    <h2>Complete Your Profile</h2>
+                </div>
+                
+                <div id="success-message" class="success-message">
+                    Profile information saved successfully!
+                </div>
+                
+                <form id="profile-form">
+                    <div class="profile-avatar-upload">
+                        <div class="profile-avatar" id="preview-avatar">
+                            <i class="fas fa-user"></i>
+                            <div class="avatar-upload-btn">
+                                <i class="fas fa-camera"></i>
+                                <input type="file" id="avatar-file-input" accept="image/*">
+                            </div>
+                        </div>
+                        <span class="form-notice">Click the camera icon to upload a profile photo</span>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Personal Information</span>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="firstName">First Name <span class="required-field">*</span></label>
+                                    <input type="text" class="form-control" id="firstName" required>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="lastName">Last Name <span class="required-field">*</span></label>
+                                    <input type="text" class="form-control" id="lastName" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="displayName">Display Name <span class="required-field">*</span></label>
+                            <input type="text" class="form-control" id="displayName" required>
+                            <span class="form-notice">This is how your name will appear on the platform</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address <span class="required-field">*</span></label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dateOfBirth">Date of Birth</label>
+                            <input type="date" class="form-control" id="dateOfBirth">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Academic Information</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="studentId">Student ID <span class="required-field">*</span></label>
+                            <input type="text" class="form-control" id="studentId" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="major">Major/Program <span class="required-field">*</span></label>
+                            <select class="form-control" id="major" required>
+                                <option value="">Select your major</option>
+                                <option value="computer_science">Computer Science</option>
+                                <option value="information_technology">Information Technology</option>
+                                <option value="information_system">Information Systems</option>
+                                <option value="business_administration">Business Administration</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-lock"></i>
+                            <span>Account Security</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password <span class="required-field">*</span></label>
+                            <div class="password-field-wrapper">
+                                <input type="password" class="form-control" id="currentPassword" required>
+                                <span class="password-toggle" data-target="currentPassword">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <div class="password-field-wrapper">
+                                <input type="password" class="form-control" id="newPassword">
+                                <span class="password-toggle" data-target="newPassword">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>
+                            <div class="password-strength">
+                                <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                            </div>
+                            <div class="password-status" id="passwordStatus">Password strength: Not set</div>
+                            <span class="form-notice">Leave blank if you don't want to change your password</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <div class="password-field-wrapper">
+                                <input type="password" class="form-control" id="confirmPassword">
+                                <span class="password-toggle" data-target="confirmPassword">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-cog"></i>
+                            <span>Preferences</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Email Notifications</label>
+                            <div style="margin-top: 5px;">
+                                <input type="checkbox" id="notifyAssignments" checked>
+                                <label for="notifyAssignments" style="display: inline; margin-left: 5px;">Assignment reminders</label>
+                            </div>
+                            <div style="margin-top: 5px;">
+                                <input type="checkbox" id="notifyGrades" checked>
+                                <label for="notifyGrades" style="display: inline; margin-left: 5px;">Grade updates</label>
+                            </div>
+                            <div style="margin-top: 5px;">
+                                <input type="checkbox" id="notifyMessages" checked>
+                                <label for="notifyMessages" style="display: inline; margin-left: 5px;">New messages</label>
+                            </div>
+                            <div style="margin-top: 5px;">
+                                <input type="checkbox" id="notifyAnnouncements" checked>
+                                <label for="notifyAnnouncements" style="display: inline; margin-left: 5px;">Course announcements</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" id="resetBtn">Reset Form</button>
+                        <button type="submit" class="btn btn-primary" id="saveBtn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+            
+
+            <div class="content-section" id="settings">
+                <h2>Settings</h2>
+                <div class="card-content">
+                    <p>Customize your dashboard preferences, notification settings, and account security options. Configure your learning environment.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const isLoggedIn = sessionStorage.getItem('loggedIn') === 'true';
+            const userName = sessionStorage.getItem('userName') || 'John Doe';
+            const userRole = sessionStorage.getItem('userRole') || 'Student';
+            const userEmail = sessionStorage.getItem('userEmail') || 'john.doe@example.com';
+            
+            // Find header elements where we'll display the user's name
+            const userNameDisplay = document.getElementById('userNameDisplay');
+            const userRoleDisplay = document.getElementById('userRoleDisplay');
+            const userMenuName = document.getElementById('userMenuName');
+            const userMenuEmail = document.getElementById('userMenuEmail');
+            
+            // If elements exist and user is logged in, display the name and role
+            if (userName && userNameDisplay) {
+                userNameDisplay.textContent = userName;
+            }
+            
+            if (userRole && userRoleDisplay) {
+                userRoleDisplay.textContent = userRole.charAt(0).toUpperCase() + userRole.slice(1);
+            }
+            
+            if (userName && userMenuName) {
+                userMenuName.textContent = userName;
+            }
+            
+            if (userEmail && userMenuEmail) {
+                userMenuEmail.textContent = userEmail;
+            }
+            
+            // Find welcome message element if it exists
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (userName && welcomeMessage) {
+                welcomeMessage.textContent = `Welcome, ${userName.split(' ')[0]}!`;
+            }
+            
+            // Sidebar toggle functionality
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+        
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+            
+            // Navigation functionality
+            const navItems = document.querySelectorAll('.nav-item[data-content]');
+            const contentSections = document.querySelectorAll('.content-section');
+            navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // Remove active class from all nav items
+                navItems.forEach(nav => nav.classList.remove('active'));
+                
+                // Add active class to clicked item
+                item.classList.add('active');
+                
+                // Hide all content sections
+                contentSections.forEach(section => section.classList.remove('active'));
+                
+                // Show selected content section
+                const targetContent = item.getAttribute('data-content');
+                const targetSection = document.getElementById(targetContent);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+            });
+        });
+            // Dropdown functionality
+            const coursesDropdown = document.getElementById('coursesDropdown');
+            const coursesMenu = document.getElementById('coursesMenu');
+            const chevronIcon = coursesDropdown.querySelector('.fa-chevron-down');
+
+            coursesDropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+                coursesMenu.classList.toggle('active');
+                coursesDropdown.classList.toggle('active');
+            });
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            
+            // Check if dark mode preference is stored
+            const darkModePreference = localStorage.getItem('darkMode') === 'true';
+            
+            // Apply dark mode if previously set
+            if (darkModePreference) {
+                document.body.classList.add('dark-mode');
+                if (darkModeToggle) {
+                    darkModeToggle.checked = true;
+                }
+            }
+            
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('change', function() {
+                    document.body.classList.toggle('dark-mode');
+                    // Save preference
+                    localStorage.setItem('darkMode', this.checked);
+                });
+            }
+            
+            
+            // Notification dropdown
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            
+            if (notificationIcon && notificationDropdown) {
+                notificationIcon.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notificationDropdown.classList.toggle('show');
+                    userMenuDropdown.classList.remove('show'); // Close user menu dropdown if open
+                });
+            }
+            
+            // User menu dropdown
+            const userMenuToggle = document.getElementById('userMenuToggle');
+            const userMenuDropdown = document.getElementById('userMenuDropdown');
+            
+            if (userMenuToggle && userMenuDropdown) {
+                userMenuToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userMenuDropdown.classList.toggle('show');
+                    notificationDropdown.classList.remove('show'); // Close notification dropdown if open
+                });
+            }
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function() {
+                if (notificationDropdown) {
+                    notificationDropdown.classList.remove('show');
+                }
+                if (userMenuDropdown) {
+                    userMenuDropdown.classList.remove('show');
+                }
+            });
+            
+            // Prevent dropdown close when clicking inside it
+            if (notificationDropdown) {
+                notificationDropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+            
+            if (userMenuDropdown) {
+                userMenuDropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+            
+            // Mark all notifications as read
+            const markAllBtn = document.querySelector('.mark-all');
+            if (markAllBtn) {
+                markAllBtn.addEventListener('click', function() {
+                    document.querySelector('.notification-count').style.display = 'none';
+                });
+            }
+            
+            // Avatar upload functionality
+            const avatarUpload = document.getElementById('avatarUpload');
+            if (avatarUpload) {
+                avatarUpload.addEventListener('click', function() {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.onchange = function(e) {
+                        const file = e.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                // Update main avatar
+                                avatarUpload.innerHTML = '';
+                                const img = document.createElement('img');
+                                img.src = event.target.result;
+                                img.style.width = '100%';
+                                img.style.height = '100%';
+                                img.style.borderRadius = '50%';
+                                img.style.objectFit = 'cover';
+                                avatarUpload.appendChild(img);
+                                
+                                // Update header avatar if exists
+                                const headerAvatar = document.querySelector('.user-menu .avatar');
+                                if (headerAvatar) {
+                                    headerAvatar.innerHTML = '';
+                                    const headerImg = document.createElement('img');
+                                    headerImg.src = event.target.result;
+                                    headerImg.style.width = '100%';
+                                    headerImg.style.height = '100%';
+                                    headerImg.style.borderRadius = '50%';
+                                    headerImg.style.objectFit = 'cover';
+                                    headerAvatar.appendChild(headerImg);
+                                }
+                                
+                                // Store in localStorage for persistence
+                                localStorage.setItem('userAvatar', event.target.result);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    };
+                    input.click();
+                });
+                
+                // Load saved avatar if exists
+                const savedAvatar = localStorage.getItem('userAvatar');
+                if (savedAvatar) {
+                    // Update main avatar
+                    avatarUpload.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = savedAvatar;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.borderRadius = '50%';
+                    img.style.objectFit = 'cover';
+                    avatarUpload.appendChild(img);
+                    
+                    // Update header avatar if exists
+                    const headerAvatar = document.querySelector('.user-menu .avatar');
+                    if (headerAvatar) {
+                        headerAvatar.innerHTML = '';
+                        const headerImg = document.createElement('img');
+                        headerImg.src = savedAvatar;
+                        headerImg.style.width = '100%';
+                        headerImg.style.height = '100%';
+                        headerImg.style.borderRadius = '50%';
+                        headerImg.style.objectFit = 'cover';
+                        headerAvatar.appendChild(headerImg);
+                    }
+                }
+            }
+            
+            // Multiple logout buttons functionality
+            const logoutBtns = [
+                document.getElementById('logoutBtn'),
+                document.getElementById('userMenuLogout')
+            ];
+            
+            logoutBtns.forEach(btn => {
+                if (btn) {
+                    btn.addEventListener('click', function() {
+                        // Clear session storage
+                        sessionStorage.removeItem('loggedIn');
+                        sessionStorage.removeItem('userName');
+                        sessionStorage.removeItem('userRole');
+                        sessionStorage.removeItem('userEmail');
+                        
+                        // Redirect to login page
+                        window.location.href = '../index.html';
+                    });
+                }
+            });
+            
+            // Search functionality
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function(e) {
+                    if (e.key === 'Enter') {
+                        alert('Searching for: ' + this.value);
+                        this.value = '';
+                    }
+                });
+            }
+            
+            // Card hover effects and animations
+            const cards = document.querySelectorAll('.dashboard-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 5px 15px rgba(0,0,0,0.15)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+                });
+            });
+            
+            // Initialize sidebar state based on screen size
+            function initializeSidebar() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('collapsed');
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '0';
+                    }
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    if (mainContent) {
+                        mainContent.style.marginLeft = '250px';
+                    }
+                }
+            }
+            
+            // Run on load
+            initializeSidebar();
+            
+            // Run on window resize
+            window.addEventListener('resize', initializeSidebar);
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in and retrieve user data
+    function loadUserData() {
+        const isLoggedIn = sessionStorage.getItem('loggedIn');
+        const userEmail = sessionStorage.getItem('userEmail');
+        const userName = sessionStorage.getItem('userName');
+        const userRole = sessionStorage.getItem('userRole');
+        const userAvatar = sessionStorage.getItem('userAvatar');
+        
+        if (!isLoggedIn || isLoggedIn !== 'true') {
+            // Redirect to login if not logged in
+            alert('Please log in to access this page.');
+            window.location.href = '../index.html'; // Adjust path as needed
+            return;
+        }
+        
+        // Pre-populate form fields with user data
+        if (userName) {
+            document.getElementById('displayName').value = userName;
+            // Update any display elements that show the user name
+            const userNameDisplays = document.querySelectorAll('[data-user-name]');
+            userNameDisplays.forEach(element => {
+                element.textContent = userName;
+            });
+        }
+        
+        if (userEmail) {
+            document.getElementById('email').value = userEmail;
+        }
+        
+        // Display user role information if there's a role display element
+        if (userRole) {
+            const roleDisplays = document.querySelectorAll('[data-user-role]');
+            roleDisplays.forEach(element => {
+                element.textContent = userRole.charAt(0).toUpperCase() + userRole.slice(1);
+            });
+        }
+        
+        // Load and display profile photo
+        loadProfilePhoto(userAvatar);
+        
+        // Set other default values or retrieve from a more persistent storage if available
+        // In a real application, you might fetch additional user data from an API here
+    }
+    
+    // Function to load profile photo
+    function loadProfilePhoto(avatarData) {
+        const previewAvatar = document.getElementById('preview-avatar');
+        const profileImages = document.querySelectorAll('[data-user-avatar]'); // For other avatar displays on the page
+        
+        if (avatarData && previewAvatar) {
+            // Display saved profile photo in the form
+            previewAvatar.innerHTML = `<img src="${avatarData}" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                <div class="avatar-upload-btn">
+                    <i class="fas fa-camera"></i>
+                </div>`;
+        }
+        
+        // Update all avatar displays throughout the page
+        if (avatarData) {
+            profileImages.forEach(img => {
+                if (img.tagName === 'IMG') {
+                    img.src = avatarData;
+                    img.alt = 'User Profile Photo';
+                } else {
+                    img.innerHTML = `<img src="${avatarData}" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                }
+            });
+        }
+    }
+    
+    // Function to save profile photo
+    function saveProfilePhoto(imageData) {
+        sessionStorage.setItem('userAvatar', imageData);
+        // Also update all avatar displays on the current page
+        loadProfilePhoto(imageData);
+    }
+    
+    // Load user data when page loads
+    loadUserData();
+    
+    // Password toggle functionality
+    document.querySelectorAll('.password-toggle').forEach(function(toggle) {
+        toggle.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                passwordInput.type = 'password';
+                this.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        });
+    });
+    
+    // Password strength meter
+    const newPasswordInput = document.getElementById('newPassword');
+    const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+    const passwordStatus = document.getElementById('passwordStatus');
+    
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', function() {
+            const password = this.value;
+            
+            if (!password) {
+                passwordStrengthBar.className = '';
+                passwordStrengthBar.style.width = '0';
+                passwordStatus.textContent = 'Password strength: Not set';
+                return;
+            }
+            
+            // Simple password strength check
+            let strength = 0;
+            
+            // Length check
+            if (password.length >= 8) strength += 1;
+            if (password.length >= 12) strength += 1;
+            
+            // Complexity checks
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[a-z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+            
+            // Set password strength indicator
+            if (strength <= 2) {
+                passwordStrengthBar.className = 'password-strength-bar weak';
+                passwordStatus.textContent = 'Password strength: Weak';
+            } else if (strength <= 4) {
+                passwordStrengthBar.className = 'password-strength-bar medium';
+                passwordStatus.textContent = 'Password strength: Medium';
+            } else {
+                passwordStrengthBar.className = 'password-strength-bar strong';
+                passwordStatus.textContent = 'Password strength: Strong';
+            }
+        });
+    }
+    
+    // Avatar upload preview
+    const avatarFileInput = document.getElementById('avatar-file-input');
+    const previewAvatar = document.getElementById('preview-avatar');
+    
+    if (document.querySelector('.avatar-upload-btn')) {
+        document.querySelector('.avatar-upload-btn').addEventListener('click', function() {
+            avatarFileInput.click();
+        });
+    }
+    
+    if (avatarFileInput) {
+        avatarFileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Please select a valid image file (JPEG, PNG, GIF, or WebP).');
+                    return;
+                }
+                
+                // Validate file size (limit to 5MB)
+                const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+                if (file.size > maxSize) {
+                    alert('Please select an image smaller than 5MB.');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = e.target.result;
+                    
+                    // Update preview immediately
+                    previewAvatar.innerHTML = `<img src="${imageData}" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        <div class="avatar-upload-btn">
+                            <i class="fas fa-camera"></i>
+                        </div>`;
+                    
+                    // Save to sessionStorage immediately (auto-save)
+                    saveProfilePhoto(imageData);
+                    
+                    // Show a brief success message
+                    showTempMessage('Profile photo updated successfully!', 'success');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Function to show temporary messages
+    function showTempMessage(message, type = 'info') {
+        // Create or get existing message element
+        let messageEl = document.getElementById('temp-message');
+        if (!messageEl) {
+            messageEl = document.createElement('div');
+            messageEl.id = 'temp-message';
+            messageEl.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 4px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            document.body.appendChild(messageEl);
+        }
+        
+        // Set message and style based on type
+        messageEl.textContent = message;
+        switch(type) {
+            case 'success':
+                messageEl.style.backgroundColor = '#28a745';
+                break;
+            case 'error':
+                messageEl.style.backgroundColor = '#dc3545';
+                break;
+            default:
+                messageEl.style.backgroundColor = '#007bff';
+        }
+        
+        // Show message
+        messageEl.style.opacity = '1';
+        
+        // Hide after 3 seconds
+        setTimeout(() => {
+            messageEl.style.opacity = '0';
+        }, 3000);
+    }
+    
+    // Form submission
+    const profileForm = document.getElementById('profile-form');
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Form validation
+            const requiredFields = document.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(function(field) {
+                if (!field.value.trim()) {
+                    field.style.borderColor = 'var(--danger-color)';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = '';
+                }
+            });
+            
+            // Password confirmation check
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword && newPassword !== confirmPassword) {
+                document.getElementById('confirmPassword').style.borderColor = 'var(--danger-color)';
+                isValid = false;
+                alert('New passwords do not match.');
+                return;
+            }
+            
+            if (!isValid) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Update session storage with new user data
+            const updatedName = document.getElementById('displayName').value;
+            const updatedEmail = document.getElementById('email').value;
+            
+            if (updatedName) {
+                sessionStorage.setItem('userName', updatedName);
+            }
+            if (updatedEmail) {
+                sessionStorage.setItem('userEmail', updatedEmail);
+            }
+            
+            // Note: Profile photo is already saved automatically when changed
+            
+            // If form is valid, simulate a successful submission
+            const successMessage = document.getElementById('success-message');
+            if (successMessage) {
+                successMessage.style.display = 'block';
+                
+                // Update displayed user name throughout the page
+                const userNameDisplays = document.querySelectorAll('[data-user-name]');
+                userNameDisplays.forEach(element => {
+                    element.textContent = updatedName;
+                });
+                
+                // Hide success message after 3 seconds
+                setTimeout(function() {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            } else {
+                // Show temp message if no success message element exists
+                showTempMessage('Profile updated successfully!', 'success');
+            }
+        });
+    }
+    
+    // Reset form button
+    const resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to reset the form? All changes will be lost.')) {
+                // Reset form but reload user data
+                profileForm.reset();
+                loadUserData(); // Reload original user data
+                
+                // Reset password strength indicator
+                if (passwordStrengthBar) {
+                    passwordStrengthBar.className = '';
+                    passwordStrengthBar.style.width = '0';
+                    passwordStatus.textContent = 'Password strength: Not set';
+                }
+                
+                // Reset avatar preview to default but preserve any saved avatar
+                if (previewAvatar) {
+                    const savedAvatar = sessionStorage.getItem('userAvatar');
+                    if (savedAvatar) {
+                        previewAvatar.innerHTML = `<img src="${savedAvatar}" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            <div class="avatar-upload-btn">
+                                <i class="fas fa-camera"></i>
+                            </div>`;
+                    } else {
+                        previewAvatar.innerHTML = `<i class="fas fa-user"></i>
+                            <div class="avatar-upload-btn">
+                                <i class="fas fa-camera"></i>
+                                <input type="file" id="avatar-file-input" accept="image/*">
+                            </div>`;
+                    }
+                }
+            }
+        });
+    }
+    
+    // Logout functionality (optional - add this if you have a logout button)
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                // Clear session storage
+                sessionStorage.clear();
+                // Redirect to login page
+                window.location.href = '../index.html'; // Adjust path as needed
+            }
+        });
+    }
+});
+    </script>
+    <script src="studentdashboard.js"></script>
+</body>
+</html>
